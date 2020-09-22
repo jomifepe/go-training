@@ -37,11 +37,11 @@ func NewUserResource(store userStore) *UserResource {
 }
 
 // MountUserRoutesTo defines new routes regarding Users on an existing gin.RouterGroup or gin.Engine
-func (ur *UserResource) MountUserRoutesTo(r gin.IRouter) (rg *gin.RouterGroup) {
+func (ur *UserResource) MountUserRoutesTo(r gin.IRouter) {
 	idParam := middleware.Param{Key: "id", ExampleValue: -1}
 
 	r.GET("/me", ur.handleMe)
-	rg = r.Group("/users"); {
+	rg := r.Group("/users"); {
 		rg.GET("", ur.handleGetUsers)
 		rg.POST("", ur.handleCreateUser)
 		withId := rg.Group("", middleware.ExtractParam(idParam)); {
@@ -49,7 +49,6 @@ func (ur *UserResource) MountUserRoutesTo(r gin.IRouter) (rg *gin.RouterGroup) {
 			withId.PUT("/:id", ur.handleUpdateUser)
 		}
 	}
-	return
 }
 
 // handleMe returns the current user information by extracting its id from the access token used on

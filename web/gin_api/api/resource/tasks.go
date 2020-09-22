@@ -45,10 +45,10 @@ func NewTaskResource(store taskStore) *TaskResource {
 }
 
 // MountTaskRoutesTo defines new routes regarding Tasks on an existing gin.RouterGroup or gin.Engine
-func (tr *TaskResource) MountTaskRoutesTo(r gin.IRouter) (rg *gin.RouterGroup) {
+func (tr *TaskResource) MountTaskRoutesTo(r gin.IRouter) {
 	idParam := middleware.Param{Key: "id", ExampleValue: -1}
 
-	rg = r.Group("/tasks"); {
+	rg := r.Group("/tasks"); {
 		rg.GET("", tr.handleGetTasks)
 		rg.POST("", tr.handleCreateTask)
 		withId := rg.Group("", middleware.ExtractParam(idParam)); {
@@ -58,7 +58,6 @@ func (tr *TaskResource) MountTaskRoutesTo(r gin.IRouter) (rg *gin.RouterGroup) {
 			withId.PUT("/:id/toggle", tr.handleTaskToggle)
 		}
 	}
-	return
 }
 
 // handleCreateTask validates the task sent on the request body and inserts it, if it's valid, on the database

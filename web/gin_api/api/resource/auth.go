@@ -36,12 +36,9 @@ func NewAuthResource(store authStore) *AuthResource {
 }
 
 // MountTaskRoutesTo defines new routes regarding Authentication on an existing gin.RouterGroup or gin.Engine
-func (ar *AuthResource) MountAuthRoutesTo(r gin.IRouter, authMiddleware gin.HandlerFunc) (rg *gin.RouterGroup) {
-	rg = r.Group("/auth"); {
-		rg.POST("/login", ar.handleSignIn)
-		rg.POST("/logout", authMiddleware, ar.handleSignOut)
-	}
-	return
+func (ar *AuthResource) MountAuthRoutesTo(r gin.IRouter, authMiddleware gin.HandlerFunc) {
+	r.POST("/login", ar.handleSignIn)
+	r.POST("/logout", authMiddleware, ar.handleSignOut)
 }
 
 // handleSignIn handles user login requests. It validates the email and password passed on the request body,

@@ -34,12 +34,18 @@ func Start(port string) {
 	authMiddleware := middleware.NewAuthMiddleware(authStore)
 
 	authResource.MountAuthRoutesTo(ginEngine, authMiddleware.AuthenticateToken())
-	apiRouter := ginEngine.Group("/api", authMiddleware.AuthenticateToken()); {
-		taskResource.MountTaskRoutesTo(apiRouter)
-		userResource.MountUserRoutesTo(apiRouter)
+	authGroup := ginEngine.Group("", authMiddleware.AuthenticateToken()); {
+		taskResource.MountTaskRoutesTo(authGroup)
+		userResource.MountUserRoutesTo(authGroup)
 	}
 
-	if err := ginEngine.Run(":" + port); err != nil {
+	var err error
+	if util.FileExists("./cert.pem") && util.FileExists("./key.pem") {
+		err = ginEngine.RunTLS(":" + port, "cert.pem", "key.pem")
+	} else {
+		err = ginEngine.Run(":" + port)
+	}
+	if err != nil {
 		logging.Logger.WithFields(util.OmitEmptyFields(logrus.Fields{
 			"error": err,
 			"port": port,
