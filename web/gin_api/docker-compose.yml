@@ -1,0 +1,54 @@
+version: "2.4" # using v2 to be able to use depends_on condition
+services:
+   go_test_database:
+      image: postgres:alpine
+      container_name: go_test_database
+      environment:
+         - TZ=Europe/Lisbon
+         - POSTGRES_USER=postgres
+         - POSTGRES_PASSWORD=postgres
+         - POSTGRES_DB=go_test
+         - DATABASE_HOST=go_test_database
+         - DATABASE_PORT=5432
+      ports:
+         - '5432:5432'
+      volumes:
+         - go_test_postgres:/var/lib/postgresql/data
+      healthcheck:
+         test: ["CMD-SHELL", "pg_isready -U postgres"]
+         interval: 10s
+         timeout: 5s
+         retries: 5
+
+   pgadmin:
+      image: dpage/pgadmin4
+      container_name: pgadmin_container
+      environment:
+         PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+         PGADMIN_DEFAULT_PASSWORD: password
+         TZ: Europe/Lisbon
+      ports:
+         - "5050:80"
+      depends_on:
+         - go_test_database
+      restart: unless-stopped
+      logging:
+         driver: none
+
+   go_test_api:
+      build:
+         context: .
+         dockerfile: Dockerfile
+      environment:
+         - TZ=Europe/Lisbon
+      ports:
+         - "3000:3000"
+      depends_on:
+         go_test_database:
+            condition: service_healthy # https://github.com/peter-evans/docker-compose-healthcheck
+      restart: on-failure
+      volumes:
+         - ./:/app/
+
+volumes:
+   go_test_postgres:
