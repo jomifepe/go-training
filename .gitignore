@@ -1,3 +1,7 @@
+*.pem
+.env
+config.yml
+
 ### OS generated files ###
 .DS_Store
 .DS_Store?
